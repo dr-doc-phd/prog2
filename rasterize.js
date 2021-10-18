@@ -16,10 +16,15 @@ var triBufferSize = 0; // the number of indices in the triangle buffer
 var vertexPositionAttrib; // where to put position for vertex shader
 var vertexColorAttrib;
 var altPosition; // flag indicating whether to alter vertex positions
-var vertexPositionAttrib; // where to put position for vertex shader
 var altPositionUniform; // where to put altPosition flag for vertex shader
+var translation;
+var translationX = -1.0;
+var translationY = 0.0;
+var translationZ = 0.0;
 
 // ASSIGNMENT HELPER FUNCTIONS
+
+
 
 // get the JSON file from the passed URL
 function getJSONFile(url,descr) {
@@ -54,6 +59,26 @@ function setupWebGL() {
     // Get the canvas and context
     var canvas = document.getElementById("myWebGLCanvas"); // create a js canvas
     gl = canvas.getContext("webgl"); // get a webgl object from it
+
+    const bodyElement = document.querySelector( "body" );
+
+
+
+
+    bodyElement.addEventListener( "keydown", KeyDown, false );
+
+
+    function KeyDown( event )
+    {
+        console.log( event );
+        if ( "s" === event.key)
+        {
+            translationY -= 0.1;
+            console.log(translationY);
+        }
+    }
+
+    
     
     try {
       if (gl == null) {
@@ -150,14 +175,15 @@ function setupShaders() {
         attribute vec3 vertexPosition;
         attribute vec4 aVertextColor;
         uniform bool altPosition;
-
+        uniform vec3 translation;
         varying lowp vec4 vColor;
 
         void main(void) {
+            
             if(altPosition)
                 gl_Position = vec4(vertexPosition + vec3(-1.0, -1.0, 0.0), 1.0); // use the altered position
             else
-                gl_Position = vec4(vertexPosition, 1.0); // use the untransformed position
+                gl_Position = vec4(vertexPosition + translation, 1.0); // use the untransformed position
             vColor = aVertextColor;
         }
     `;
@@ -194,9 +220,12 @@ function setupShaders() {
                 gl.enableVertexAttribArray(vertexPositionAttrib); // input to shader from array
                 altPositionUniform = // get pointer to altPosition flag
                     gl.getUniformLocation(shaderProgram, "altPosition");
+                translation = 
+                    gl.getUniformLocation(shaderProgram, "translation" );
                 vertexColorAttrib = // get pointer to vertex shader input
                     gl.getAttribLocation(shaderProgram, "aVertextColor"); 
                 gl.enableVertexAttribArray(vertexColorAttrib); // input to shader from array
+                
 
 
             } // end if no shader program link errors
@@ -207,10 +236,10 @@ function setupShaders() {
         console.log(e);
     } // end catch
     altPosition = false;
-    setTimeout(function alterPosition() {
-        altPosition = !altPosition;
-        setTimeout(alterPosition, 2000);
-    }, 2000); // switch flag value every 2 seconds
+    // setTimeout(function alterPosition() {
+    //     altPosition = !altPosition;
+    //     setTimeout(alterPosition, 2000);
+    // }, 2000); // switch flag value every 2 seconds
 } // end setup shaders
 
 // render the loaded model
@@ -220,11 +249,17 @@ function renderTriangles() {
     // vertex buffer: activate and feed into vertex shader
     gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer); // activate
     gl.vertexAttribPointer(vertexPositionAttrib,3,gl.FLOAT,false,0,0); // feed
-    gl.uniform1i(altPositionUniform, altPosition); // feed
+    gl.uniform1i(altPositionUniform, altPosition);
 
+    console.log(altPositionUniform);
+
+    gl.uniform3f(translation, translationX, translationY, translationZ);
+    //console.log(translation);
     // color buffer: activate and feed into vertex shader
     gl.bindBuffer(gl.ARRAY_BUFFER,colorBuffer); // activate
     gl.vertexAttribPointer(vertexColorAttrib,4,gl.FLOAT,false,0,0); // feed
+
+    
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,triangleBuffer);
     gl.drawElements(gl.TRIANGLES,triBufferSize,gl.UNSIGNED_SHORT,0);
