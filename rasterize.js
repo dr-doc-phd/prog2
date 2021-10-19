@@ -7,7 +7,8 @@ const WIN_BOTTOM = 0; const WIN_TOP = 1;  // default top and bottom y coords in 
 const INPUT_TRIANGLES_URL = "https://ncsucgclass.github.io/prog2/triangles.json"; // triangles file loc
 const INPUT_SPHERES_URL = "https://ncsucgclass.github.io/prog2/spheres.json"; // spheres file loc
 var Eye = new vec4.fromValues(0.5,0.5,-0.5,1.0); // default eye position in world space
-
+var at = new vec3.fromValues(0.0,0.0,1.0);
+var up = new vec3.fromValues(0.0,1.0,0.0);
 /* webgl globals */
 var gl = null; // the all powerful gl object. It's all here folks!
 var vertexBuffer; // this contains vertex coordinates in triples
@@ -18,9 +19,11 @@ var vertexColorAttrib;
 var altPosition; // flag indicating whether to alter vertex positions
 var altPositionUniform; // where to put altPosition flag for vertex shader
 var translation;
-var translationX = -1.0;
+var translationX = 0.0;
 var translationY = 0.0;
 var translationZ = 0.0;
+var modelViewMatrix;
+var modelViewMatrixLoc;
 
 // ASSIGNMENT HELPER FUNCTIONS
 
@@ -84,6 +87,7 @@ function setupWebGL() {
       if (gl == null) {
         throw "unable to create gl context -- is your browser gl ready?";
       } else {
+        gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // use black when we clear the frame buffer
         gl.clearDepth(1.0); // use max when we clear the depth buffer
         gl.enable(gl.DEPTH_TEST); // use hidden surface removal (with zbuffering)
@@ -250,8 +254,6 @@ function renderTriangles() {
     gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer); // activate
     gl.vertexAttribPointer(vertexPositionAttrib,3,gl.FLOAT,false,0,0); // feed
     gl.uniform1i(altPositionUniform, altPosition);
-
-    console.log(altPositionUniform);
 
     gl.uniform3f(translation, translationX, translationY, translationZ);
     //console.log(translation);
