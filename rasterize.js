@@ -27,7 +27,8 @@ var modelViewMatrixLoc;
 
 // ASSIGNMENT HELPER FUNCTIONS
 
-
+//https://www.geertarien.com/blog/2017/07/16/overview-of-the-rendering-pipeline-in-webgl/
+//https://www.geertarien.com/blog/2017/08/30/blinn-phong-shading-using-webgl/
 
 // get the JSON file from the passed URL
 function getJSONFile(url,descr) {
