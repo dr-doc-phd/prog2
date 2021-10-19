@@ -22,8 +22,13 @@ var translation;
 var translationX = 0.0;
 var translationY = 0.0;
 var translationZ = 0.0;
-var modelViewMatrix;
+var modelViewMatrix = mat4.lookAt(Eye, at, up);
 var modelViewMatrixLoc;
+var projectionMatrix;
+var projectionMatrixLoc;
+const fov = 55;
+const near = 0.3;
+const far = 5;
 
 // ASSIGNMENT HELPER FUNCTIONS
 
@@ -63,7 +68,8 @@ function setupWebGL() {
     // Get the canvas and context
     var canvas = document.getElementById("myWebGLCanvas"); // create a js canvas
     gl = canvas.getContext("webgl"); // get a webgl object from it
-
+    var aspectRatio = gl.canvas.width / gl.canvas.height;
+    projectionMatrix = perspective(fov, aspectRatio, near, far);
     const bodyElement = document.querySelector( "body" );
 
 
@@ -227,6 +233,10 @@ function setupShaders() {
                     gl.getUniformLocation(shaderProgram, "altPosition");
                 translation = 
                     gl.getUniformLocation(shaderProgram, "translation" );
+                modelViewMatrixLoc = 
+                    gl.getUniformLocation(program, "modelViewMatrix");
+                projectionMatrixLoc = 
+                    gl.getUniformLocation( program, "projectionMatrix" );
                 vertexColorAttrib = // get pointer to vertex shader input
                     gl.getAttribLocation(shaderProgram, "aVertextColor"); 
                 gl.enableVertexAttribArray(vertexColorAttrib); // input to shader from array
@@ -257,6 +267,8 @@ function renderTriangles() {
     gl.uniform1i(altPositionUniform, altPosition);
 
     gl.uniform3f(translation, translationX, translationY, translationZ);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
     //console.log(translation);
     // color buffer: activate and feed into vertex shader
     gl.bindBuffer(gl.ARRAY_BUFFER,colorBuffer); // activate
