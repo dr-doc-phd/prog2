@@ -23,6 +23,7 @@ var vertexspecularColorAttrib;
 var vertexambientColorAttrib;
 var vertexShineAttrib;
 var vertexNormalAttrib;
+var vertexIDAttribute;
 
 var altPosition; // flag indicating whether to alter vertex positions
 var altPositionUniform; // where to put altPosition flag for vertex shader
@@ -33,7 +34,7 @@ var translationY = 0.0;
 var translationZ = 0.0;
 var modelViewMatrix = mat4.lookAt([], Eye, at, up);
 var modelViewMatrixLoc;
-var projectionMatrix = mat4.proj;
+var projectionMatrix;
 var projectionMatrixLoc;
 var light = [1,1,1];
 var lightloc = [-0.5,1.5,-0.5];
@@ -245,7 +246,7 @@ function setupShaders() {
             vec4 diffuse = abs(dot(L, N)) * theVertextdiffuseColor;
             vec3 H = normalize(L+E);
             vec4 specular =
-              pow(max(dot(N, H), 0.0), theVertextShine) * theVertextspecularColor;
+              pow(abs(dot(N, H)), theVertextShine) * theVertextspecularColor;
         
             if (dot(L, N) < 0.0)
               specular = vec4(0.0, 0.0, 0.0, 1.0);
@@ -283,7 +284,8 @@ function setupShaders() {
             
             vec3 pos = (modelViewMatrix * vec4(vertexPosition, 1.0)).xyz;
             vec3 lightPos = (modelViewMatrix * vec4(lightPosition, 1.0)).xyz;
-
+            
+            
        
             L = normalize(lightPos - pos);
             N = normalize((modelViewMatrix * vec4(aVertextNormal, 1.0)).xyz);
@@ -293,8 +295,13 @@ function setupShaders() {
 
             theVertextdiffuseColor = aVertextdiffuseColor;
             theVertextspecularColor = aVertextspecularColor;
-            theVertextambientColor = aVertextambientColor;
+            
             theVertextShine = aVertextShine;
+
+           
+            theVertextambientColor = aVertextambientColor;
+            
+            
             
         }
     `;
@@ -408,10 +415,10 @@ function renderTriangles() {
     gl.vertexAttribPointer(vertexambientColorAttrib,4,gl.FLOAT,false,0,0); // feed
 
     gl.bindBuffer(gl.ARRAY_BUFFER,shinycolorBuffer); // activate
-    gl.vertexAttribPointer(vertexShineAttrib,1,gl.FLOAT,false,0,0); // feed
+    gl.vertexAttribPointer(vertexShineAttrib,1,gl.UNSIGNED_BYTE,false,0,0); // feed
 
     gl.bindBuffer(gl.ARRAY_BUFFER,objectIDsBuffer); // activate
-    gl.vertexAttribPointer(vertexIDAttribute,1,gl.FLOAT,false,0,0); // feed
+    gl.vertexAttribPointer(vertexIDAttribute,1,gl.UNSIGNED_BYTE,false,0,0); // feed
 
     gl.bindBuffer(gl.ARRAY_BUFFER,normalsBuffer); // activate
     gl.vertexAttribPointer(vertexNormalAttrib,3,gl.FLOAT,false,0,0); // feed
