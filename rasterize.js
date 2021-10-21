@@ -6,12 +6,7 @@ const WIN_LEFT = 0; const WIN_RIGHT = 1;  // default left and right x coords in 
 const WIN_BOTTOM = 0; const WIN_TOP = 1;  // default top and bottom y coords in world space
 const INPUT_TRIANGLES_URL = "https://ncsucgclass.github.io/prog2/triangles.json"; // triangles file loc
 const INPUT_SPHERES_URL = "https://ncsucgclass.github.io/prog2/spheres.json"; // spheres file loc
-var eyex = 0.5;
-var eyey = 0.5;
-var eyez = -0.5;
-var Eye = new vec3.fromValues(eyex,eyey,eyez); // default eye position in world space
-var at = new vec3.fromValues(0.5,0.5,0.0);
-var up = new vec3.fromValues(0.0,1.0,0.0);
+
 /* webgl globals */
 var gl = null; // the all powerful gl object. It's all here folks!
 var vertexBuffer; // this contains vertex coordinates in triples
@@ -27,15 +22,38 @@ var vertexIDAttribute;
 
 var altPosition; // flag indicating whether to alter vertex positions
 var altPositionUniform; // where to put altPosition flag for vertex shader
-var translation;
 var lightPosition;
-var translationX = 0.0;
-var translationY = 0.0;
-var translationZ = 0.0;
+var eyex = 0.5;
+var eyey = 0.5;
+var eyez = -0.5;
+var Eye = new vec3.fromValues(eyex,eyey,eyez); // default eye position in world space
+var at = new vec3.fromValues(0.5,0.5,0.0);
+var up = new vec3.fromValues(0.0,1.0,0.0);
 var modelViewMatrix = mat4.lookAt([], Eye, at, up);
+
+var translation1;
+var translationX1 = 0.0;
+var translationY1 = 0.0;
+var translationZ1 = 0.0;
+var translation2;
+var translationX2 = 0.0;
+var translationY2 = 0.0;
+var translationZ2 = 0.0;
+
 var modelViewMatrixLoc;
 var projectionMatrix;
 var projectionMatrixLoc;
+var modelMatrix;
+var modelMatricLoc
+var rotationMatrix1;
+var rotationMAtrix2;
+var rotationMatrix1Loc;
+var rotationMatrix2Loc;
+var scaleMatrix1;
+var scaleMatrix2;
+var scaleMatrix1Loc;
+var scaleMatrix2Loc;
+var selectedObj;
 var light = [1,1,1];
 var lightloc = [-0.5,1.5,-0.5];
 
@@ -93,11 +111,21 @@ function setupWebGL() {
     function KeyDown( event )
     {
         console.log( event );
-        if ( "s" === event.key)
+        if ( "k" === event.key)
         {
-            translationY -= 0.1;
-            console.log(translationY);
+            if (selectedObj = 0)
+            {
+                translationY1 -= 0.1;
+            }
+            
+            if (selectedObj = 1){
+                translationY2 -= 0.1;
+            }
         }
+
+        if ( "")
+
+
     }
 
     
@@ -273,7 +301,8 @@ function setupShaders() {
         varying float theVertextShine;
         varying lowp vec3 L,N,E;
 
-        uniform vec3 translation;
+        uniform vec3 translation1;
+        uniform vec3 translation2;
         uniform vec3 lightPosition;
         uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
@@ -291,7 +320,7 @@ function setupShaders() {
             N = normalize((modelViewMatrix * vec4(aVertextNormal, 1.0)).xyz);
             E = -normalize(pos);
 
-            gl_Position = projectionMatrix*modelViewMatrix*vec4(vertexPosition + translation, 1.0); // use the untransformed position
+            gl_Position = projectionMatrix*modelViewMatrix*vec4(vertexPosition + translation1, 1.0); // use the untransformed position
 
             theVertextdiffuseColor = aVertextdiffuseColor;
             theVertextspecularColor = aVertextspecularColor;
@@ -364,8 +393,10 @@ function setupShaders() {
 
 
                 
-                translation = 
-                    gl.getUniformLocation(shaderProgram, "translation" );
+                translation1 = 
+                    gl.getUniformLocation(shaderProgram, "translation1" );
+                translation2 = 
+                    gl.getUniformLocation(shaderProgram, "translation2" );
                 lightPosition = 
                     gl.getUniformLocation(shaderProgram, "lightPosition" );
                 modelViewMatrixLoc = 
@@ -399,7 +430,8 @@ function renderTriangles() {
     gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer); // activate
     gl.vertexAttribPointer(vertexPositionAttrib,3,gl.FLOAT,false,0,0); // feed
 
-    gl.uniform3f(translation, translationX, translationY, translationZ);
+    gl.uniform3f(translation1, translationX1, translationY1, translationZ1);
+    gl.uniform3f(translation2, translationX2, translationY2, translationZ2);
     gl.uniform3f(lightPosition, lightloc[0],lightloc[1],lightloc[2]);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, modelViewMatrix);
     gl.uniformMatrix4fv(projectionMatrixLoc, false, projectionMatrix);
