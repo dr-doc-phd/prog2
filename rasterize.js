@@ -23,37 +23,45 @@ var vertexIDAttribute;
 var altPosition; // flag indicating whether to alter vertex positions
 var altPositionUniform; // where to put altPosition flag for vertex shader
 var lightPosition;
-var eyex = 0.5;
-var eyey = 0.5;
-var eyez = -0.5;
-var Eye = new vec3.fromValues(eyex,eyey,eyez); // default eye position in world space
+var Eye = new vec3.fromValues(0.5,0.5,-0.5); // default eye position in world space
 var at = new vec3.fromValues(0.5,0.5,0.0);
 var up = new vec3.fromValues(0.0,1.0,0.0);
-var modelViewMatrix = mat4.lookAt([], Eye, at, up);
+var rotateX = 0.0;
+var rotateY = 0.0;
+var translateX = 0.0;
+var translateY = 0.0;
+var translateZ = 0.0;
 
-var translation1;
+
+
+
 var translationX1 = 0.0;
 var translationY1 = 0.0;
 var translationZ1 = 0.0;
-var translation2;
+
 var translationX2 = 0.0;
 var translationY2 = 0.0;
 var translationZ2 = 0.0;
 
+var modelViewMatrix;
 var modelViewMatrixLoc;
 var projectionMatrix;
 var projectionMatrixLoc;
-var modelMatrix;
-var modelMatricLoc
-var rotationMatrix1;
-var rotationMAtrix2;
-var rotationMatrix1Loc;
-var rotationMatrix2Loc;
-var scaleMatrix1;
-var scaleMatrix2;
-var scaleMatrix1Loc;
-var scaleMatrix2Loc;
-var selectedObj;
+
+var modelMatrix1 = mat4.create();
+var modelMatrix2 = mat4.create();
+var modelMatrix1Loc;
+var modelMatrix2Loc;
+
+var rotationX1 = 0.0;
+var rotationY1 = 0.0;
+var rotationZ1 = 0.0;
+var rotationX2 = 0.0;
+var rotationY2 = 0.0;
+var rotationZ2 = 0.0;
+var scale = 1.0;
+var scale2 = 1.0;
+var selectedObj = 0;
 var light = [1,1,1];
 var lightloc = [-0.5,1.5,-0.5];
 
@@ -101,7 +109,7 @@ function setupWebGL() {
     const far = 5;
     projectionMatrix = mat4.perspective([], fov, aspectRatio, near, far);
     const bodyElement = document.querySelector( "body" );
-
+    
 
 
 
@@ -113,20 +121,258 @@ function setupWebGL() {
         console.log( event );
         if ( "k" === event.key)
         {
-            if (selectedObj = 0)
+            if (selectedObj == 1)
+            {
+                translationX1 += 0.1;
+            }
+            
+            if (selectedObj == 2){
+                translationX2 += 0.1;
+            }
+        }
+        
+        if ( ";" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                translationX1 -= 0.1;
+            }
+            
+            if (selectedObj == 2){
+                translationX2 -= 0.1;
+            }
+        }
+
+        if ( "o" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                translationZ1 -= 0.1;
+            }
+            
+            if (selectedObj == 2){
+                translationZ2 -= 0.1;
+            }
+        }
+
+        if ( "l" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                translationZ1 += 0.1;
+            }
+            
+            if (selectedObj == 2){
+                translationZ2 += 0.1;
+            }
+        }
+
+        if ( "i" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                translationY1 += 0.1;
+            }
+            
+            if (selectedObj == 2){
+                translationY2 += 0.1;
+            }
+        }
+
+        if ( "p" === event.key)
+        {
+            if (selectedObj == 1)
             {
                 translationY1 -= 0.1;
             }
             
-            if (selectedObj = 1){
+            if (selectedObj == 2){
                 translationY2 -= 0.1;
             }
         }
 
-        if ( "")
+        if ( "K" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                rotationY1 -= 0.1;
+            }
+            
+            if (selectedObj == 2){
+                rotationY2 -= 0.1;
+            }
+        }
+
+        if ( ":" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                rotationY1 += 0.1;
+            }
+            
+            if (selectedObj == 2){
+                rotationY2 += 0.1;
+            }
+        }
+
+        if ( "O" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                rotationX1 -= 0.1;
+            }
+            
+            if (selectedObj == 2){
+                rotationX2 -= 0.1;
+            }
+        }
+
+        if ( "L" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                rotationX1 += 0.1;
+            }
+            
+            if (selectedObj == 2){
+                rotationX2 += 0.1;
+            }
+        }
+
+        if ( "I" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                rotationZ1 -= 0.1;
+            }
+            
+            if (selectedObj == 2){
+                rotationZ2 -= 0.1;
+            }
+        }
+
+        if ( "P" === event.key)
+        {
+            if (selectedObj == 1)
+            {
+                rotationZ1 += 0.1;
+            }
+            
+            if (selectedObj == 2){
+                rotationZ2 += 0.1;
+            }
+        }
+        if ( "ArrowLeft" === event.key)
+        {
+            if (selectedObj === 0){
+                selectedObj = 1;
+            } else if (selectedObj === 1){
+                selectedObj = 2;
+            } else if (selectedObj === 2){
+                selectedObj = 1;
+            }
+            console.log(selectedObj);
+        }
+
+        if ( "ArrowRight" === event.key)
+        {
+            if (selectedObj === 0){
+                selectedObj = 2;
+            } else if (selectedObj === 1){
+                selectedObj = 2;
+            } else if (selectedObj === 2){
+                selectedObj = 1;
+            }
+            console.log(selectedObj);
+        }
+
+        if (" " === event.key)
+        {
+            selectedObj = 0;
+            console.log(selectedObj);
+        }
+
+        if ( "a" === event.key)
+        {
+            translateX += 0.1;
+            
+        }
+
+        if ( "d" === event.key)
+        {
+            translateX -= 0.1;
+            
+        }
+
+        if ( "q" === event.key)
+        {
+            translateY += 0.1;
+            
+        }
+
+        if ( "e" === event.key)
+        {
+            translateY -= 0.1;
+            
+        }
+
+        if ( "w" === event.key)
+        {
+            translateZ -= 0.1;
+            
+        }
+
+        if ( "s" === event.key)
+        {
+            translateZ += 0.1;
+            
+        }
+
+        if ( "A" === event.key)
+        {
+            rotateY += 0.1;
+            
+        }
+
+        if ( "D" === event.key)
+        {
+            rotateY -= 0.1;
+            
+        }
+
+        if ( "S" === event.key)
+        {
+            rotateX += 0.1;
+            
+        }
+
+        if ( "W" === event.key)
+        {
+            rotateX -= 0.1;
+            
+        }
+
+
+
+
+        if (selectedObj == 0){
+            scale = 1.0;
+            scale2 = 1.0
+        }else if(selectedObj == 1){
+            scale = 1.5;
+            scale2 = 1.0;
+        }else if (selectedObj == 2){
+            scale = 1.0;
+            scale2 = 1.5;
+        }
+
 
 
     }
+
+    
+
+    
 
     
     
@@ -193,6 +439,7 @@ function loadTriangles() {
                 ambientcolors.push(ambientcolorsToAdd[0],ambientcolorsToAdd[1],ambientcolorsToAdd[2],1.0);
                 
                 shinycolors.push(inputTriangles[whichSet].material.n);
+                
                 objectIDs.push(whichSet);
 
                 vec3.cross(normalsToAdd, 
@@ -214,6 +461,7 @@ function loadTriangles() {
             vtxBufferSize += inputTriangles[whichSet].vertices.length; // total number of vertices
             triBufferSize += inputTriangles[whichSet].triangles.length; // total number of tris
         } // end for each triangle set 
+        
         triBufferSize *= 3; // now total number of indices
 
         // send the vertex coords to webGL
@@ -227,7 +475,7 @@ function loadTriangles() {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(indexArray),gl.STATIC_DRAW); // indices to that buffer
 
         
-
+        console.log(coordArray);
         diffusecolorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, diffusecolorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffusecolors), gl.STATIC_DRAW);
@@ -250,7 +498,7 @@ function loadTriangles() {
 
         objectIDsBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, objectIDsBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(objectIDs), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectIDs), gl.STATIC_DRAW);
 
     } // end if triangles found
 } // end load triangles
@@ -301,11 +549,13 @@ function setupShaders() {
         varying float theVertextShine;
         varying lowp vec3 L,N,E;
 
-        uniform vec3 translation1;
-        uniform vec3 translation2;
+        
         uniform vec3 lightPosition;
         uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
+        uniform mat4 modelMatrix1;
+        uniform mat4 modelMatrix2;
+        
         
 
         void main(void) {
@@ -319,8 +569,15 @@ function setupShaders() {
             L = normalize(lightPos - pos);
             N = normalize((modelViewMatrix * vec4(aVertextNormal, 1.0)).xyz);
             E = -normalize(pos);
+            vec4 pos1 = projectionMatrix*modelViewMatrix*modelMatrix1*vec4(vertexPosition, 1.0);
+            vec4 pos2 = projectionMatrix*modelViewMatrix*modelMatrix2*vec4(vertexPosition, 1.0);
 
-            gl_Position = projectionMatrix*modelViewMatrix*vec4(vertexPosition + translation1, 1.0); // use the untransformed position
+            if (vertexIDAttribute == 0.0){
+                gl_Position = pos1;
+            }
+            else{
+                gl_Position = pos2;
+            }
 
             theVertextdiffuseColor = aVertextdiffuseColor;
             theVertextspecularColor = aVertextspecularColor;
@@ -393,16 +650,17 @@ function setupShaders() {
 
 
                 
-                translation1 = 
-                    gl.getUniformLocation(shaderProgram, "translation1" );
-                translation2 = 
-                    gl.getUniformLocation(shaderProgram, "translation2" );
+                
                 lightPosition = 
                     gl.getUniformLocation(shaderProgram, "lightPosition" );
                 modelViewMatrixLoc = 
                     gl.getUniformLocation(shaderProgram, "modelViewMatrix");
                 projectionMatrixLoc = 
-                    gl.getUniformLocation( shaderProgram, "projectionMatrix" );
+                    gl.getUniformLocation(shaderProgram, "projectionMatrix" );
+                modelMatrix1Loc =
+                    gl.getUniformLocation(shaderProgram, "modelMatrix1");
+                modelMatrix2Loc =
+                    gl.getUniformLocation(shaderProgram, "modelMatrix2");
                 
                 
                 
@@ -430,11 +688,48 @@ function renderTriangles() {
     gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer); // activate
     gl.vertexAttribPointer(vertexPositionAttrib,3,gl.FLOAT,false,0,0); // feed
 
-    gl.uniform3f(translation1, translationX1, translationY1, translationZ1);
-    gl.uniform3f(translation2, translationX2, translationY2, translationZ2);
+    
     gl.uniform3f(lightPosition, lightloc[0],lightloc[1],lightloc[2]);
+
+
+    var modelViewMatrixTemp1 = mat4.lookAt([], Eye, at, up);
+    var modelViewMatrixTemp2 = mat4.translate([], modelViewMatrixTemp1, vec3.fromValues(translateX,translateY,translateZ));
+    var modelViewMatrixTemp3 = mat4.rotate([], modelViewMatrixTemp2, rotateX, vec3.fromValues(1.0,0.0,0.0));
+    modelViewMatrix = mat4.rotate([], modelViewMatrixTemp3, rotateY, vec3.fromValues(0.0,1.0,0.0));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, modelViewMatrix);
+
     gl.uniformMatrix4fv(projectionMatrixLoc, false, projectionMatrix);
+
+    
+    var rotationMatrixX = mat4.fromRotation([], rotationX1, vec3.fromValues(1.0,0.0,0.0));
+    var rotationMatrixY = mat4.fromRotation([], rotationY1, vec3.fromValues(0.0,1.0,0.0));
+    var rotationMatrixZ = mat4.fromRotation([], rotationZ1, vec3.fromValues(0.0,0.0,1.0));
+
+    var translateToOrigin = mat4.fromTranslation([], vec3.fromValues(-0.25, -0.7, -0.75));
+    var translateFromOrigin = mat4.fromTranslation([], vec3.fromValues(0.25, 0.7, 0.75));
+    var translationMatrix = mat4.fromTranslation([],vec3.fromValues(translationX1,translationY1,translationZ1));
+
+    var scaleMatrix = mat4.fromScaling([], vec3.fromValues(scale,scale,scale));
+    modelMatrix1 = mat4.multiply([],scaleMatrix, mat4.multiply([],translationMatrix, mat4.multiply([],translateFromOrigin,
+        mat4.multiply([], rotationMatrixZ, mat4.multiply([], rotationMatrixY, mat4.multiply([], rotationMatrixX, translateToOrigin))))));
+
+
+    gl.uniformMatrix4fv(modelMatrix1Loc, false, modelMatrix1);
+
+    var rotationMatrixX1 = mat4.fromRotation([], rotationX2, vec3.fromValues(1.0,0.0,0.0));
+    var rotationMatrixY1 = mat4.fromRotation([], rotationY2, vec3.fromValues(0.0,1.0,0.0));
+    var rotationMatrixZ1 = mat4.fromRotation([], rotationZ2, vec3.fromValues(0.0,0.0,1.0));
+
+    var translateToOrigin1 = mat4.fromTranslation([], vec3.fromValues(-0.25, -0.25, -0.75));
+    var translateFromOrigin1 = mat4.fromTranslation([], vec3.fromValues(0.25, 0.25, 0.75));
+    var translationMatrix1 = mat4.fromTranslation([],vec3.fromValues(translationX2,translationY2,translationZ2));
+
+    var scaleMatrix1 = mat4.fromScaling([], vec3.fromValues(scale2,scale2,scale2));
+    modelMatrix2 = mat4.multiply([],scaleMatrix1, mat4.multiply([],translationMatrix1, mat4.multiply([],translateFromOrigin1,
+        mat4.multiply([], rotationMatrixZ1, mat4.multiply([], rotationMatrixY1, mat4.multiply([], rotationMatrixX1, translateToOrigin1))))));
+
+
+    gl.uniformMatrix4fv(modelMatrix2Loc, false, modelMatrix2);
     //console.log(translation);
     // color buffer: activate and feed into vertex shader
     gl.bindBuffer(gl.ARRAY_BUFFER,diffusecolorBuffer); // activate
@@ -450,7 +745,7 @@ function renderTriangles() {
     gl.vertexAttribPointer(vertexShineAttrib,1,gl.UNSIGNED_BYTE,false,0,0); // feed
 
     gl.bindBuffer(gl.ARRAY_BUFFER,objectIDsBuffer); // activate
-    gl.vertexAttribPointer(vertexIDAttribute,1,gl.UNSIGNED_BYTE,false,0,0); // feed
+    gl.vertexAttribPointer(vertexIDAttribute,1,gl.FLOAT,false,0,0); // feed
 
     gl.bindBuffer(gl.ARRAY_BUFFER,normalsBuffer); // activate
     gl.vertexAttribPointer(vertexNormalAttrib,3,gl.FLOAT,false,0,0); // feed
